@@ -24,7 +24,8 @@ class ToscaNetwork(HotResource):
     toscatype = 'tosca.nodes.network.Network'
     SUBNET_SUFFIX = '_subnet'
     NETWORK_PROPS = ['network_name', 'network_id', 'segmentation_id']
-    SUBNET_PROPS = ['ip_version', 'cidr', 'start_ip', 'end_ip', 'gateway_ip']
+    SUBNET_PROPS = ['ip_version', 'cidr', 'start_ip', 'end_ip', 'gateway_ip',
+                    'subnetpool']
 
     existing_resource_id = None
 
@@ -41,14 +42,15 @@ class ToscaNetwork(HotResource):
         for key, value in tosca_props.items():
             if key in self.NETWORK_PROPS:
                 if key == 'network_name':
-                    # If CIDR is specified network_name should
+                    # If CIDR or subnetpool is specified network_name should
                     # be used as the name for the new network.
-                    if 'cidr' in tosca_props.keys():
+                    if 'cidr' in tosca_props.keys() or \
+                            'subnetpool' in tosca_props.keys():
                         net_props['name'] = value
-                    # If CIDR is not specified network_name will be used
-                    # to lookup existing network. If network_id is specified
-                    # together with network_name then network_id should be
-                    # used to lookup the network instead
+                    # If CIDR or subnetpool is not specified network_name
+                    # will be used to lookup existing network. If network_id
+                    # is specified together with network_name then network_id
+                    # should be used to lookup the network instead
                     elif 'network_id' not in tosca_props.keys():
                         self.hide_resource = True
                         self.existing_resource_id = value
