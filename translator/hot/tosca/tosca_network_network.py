@@ -23,7 +23,8 @@ class ToscaNetwork(HotResource):
 
     toscatype = 'tosca.nodes.network.Network'
     SUBNET_SUFFIX = '_subnet'
-    NETWORK_PROPS = ['network_name', 'network_id', 'segmentation_id']
+    NETWORK_PROPS = ['network_name', 'network_id', 'segmentation_id',
+                     'network_type', 'physical_network']
     SUBNET_PROPS = ['ip_version', 'cidr', 'start_ip', 'end_ip', 'gateway_ip',
                     'subnetpool']
 
@@ -62,9 +63,15 @@ class ToscaNetwork(HotResource):
                 elif key == 'segmentation_id':
                     # Hardcode to vxlan for now until we add the network type
                     # and physical network to the spec.
-                    net_props['value_specs'] = {'provider:segmentation_id':
-                                                value, 'provider:network_type':
-                                                'vxlan'}
+                    net_props.setdefault('value_specs', {}) \
+                        .update({'provider:segmentation_id': value})
+                elif key == 'network_type':
+                    net_props.setdefault('value_specs', {}) \
+                        .update({'provider:network_type': value})
+                elif key == 'physical_network':
+                    net_props.setdefault('value_specs', {}) \
+                        .update({'provider:physical_network': value})
+
         self.properties = net_props
 
     def handle_expansion(self):
